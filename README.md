@@ -16,13 +16,15 @@ Moradores de bairros urbanos e pequenos comércios (padarias, feiras) descartam 
 
 | Página | Pasta | Descrição |
 |--------|-------|-----------|
-| Início | `Inicio/` | Colar, listar, editar e remover recados de sobras; painel de atividades |
-| Simulador | `Simulador/` | Estima quantas famílias a comida jogada fora poderia alimentar |
-| Sobre | `Sobre/` | Problema, cidadão, evidência, ODS e modelo de negócio |
+| Início | `inicio/` | Colar, listar, editar e remover recados de sobras; painel de atividades |
+| Simulador | `simulador/` | Estima quantas famílias a comida jogada fora poderia alimentar |
+| Sobre | `sobre/` | Problema, cidadão, evidência, ODS e modelo de negócio |
 
 ### Início (a geladeira)
 
-Cada recado vira uma etiqueta presa com ímã: amarela se vence hoje ou amanhã, riscada se já venceu. O **cupom de atividades** registra data/hora, ação e resultado de cada operação (ex.: `17/11/2026 08:30 — item adicionado com sucesso`).
+Cada recado vira uma etiqueta presa com ímã: amarela se vence hoje ou amanhã, riscada se já venceu. O **cupom de atividades** registra data/hora, ação e resultado de cada operação (ex.: `17/11/2026 08:30 — item adicionado com sucesso`). O resultado só diz "com sucesso" depois que o dado foi gravado de verdade; se a gravação falhar, o cupom registra `falha ao salvar os dados`.
+
+**Recados vencidos podem ser editados**: ao editar um recado que já venceu, manter a data original é permitido, assim dá para corrigir nome, quantidade ou ponto. Para trocar a data, a nova precisa ser de hoje até 1 ano.
 
 ### Modelo de dados
 
@@ -42,7 +44,9 @@ Log: `quando`, `acao`, `resultado` (guarda as últimas 30 atividades).
 - Toda entrada é validada (vazio, tamanho, formato e tipo) no HTML5 e em JavaScript;
 - Erros mostram só "Não foi possível carregar os dados. Tente novamente.";
 - O texto digitado só entra na página com `textContent`, nunca `innerHTML`;
-- Coleta mínima (LGPD): nenhum dado pessoal; só dados fictícios; sem segredos no repositório.
+- Dados lidos do `localStorage` são **validados de novo** antes de aparecer na tela (tipo, tamanho, unidade, data real e id repetido). Recados corrompidos ou alterados à mão são descartados e o descarte aparece no cupom;
+- Bootstrap carregado do CDN com **SRI** (`integrity` + `crossorigin`): o navegador recusa o arquivo se ele for alterado;
+- Coleta mínima (LGPD): nenhum dado pessoal; só dados fictícios; sem segredos no repositório (`.gitignore` bloqueia `.env`, chaves e certificados).
 
 ---
 
@@ -51,15 +55,20 @@ Log: `quando`, `acao`, `resultado` (guarda as últimas 30 atividades).
 - **HTML5** semântico (`header`, `nav`, `main`, `section`, `footer`);
 - **CSS3** em arquivo externo, Mobile First, Flexbox/Grid;
 - **JavaScript** puro: DOM, eventos, `localStorage`;
-- **Bootstrap 5.3.8**: navbar, grid e formulários.
+- **Bootstrap 5.3.9** (via CDN, com SRI): navbar, grid e formulários.
 
-### Recursos além da aula (bônus)
+### Recursos além da aula (bônus) e por que usei cada um
 
-- **Animações CSS** (`@keyframes`) respeitando `prefers-reduced-motion`;
-- **`clip-path` e SVG** para as casinhas do simulador, a geladeira vazia e a borda serrilhada do cupom;
-- **API de validação do navegador** (`validity`) para mostrar as mensagens na tela;
-- **`requestAnimationFrame` e `matchMedia`** para a contagem do simulador;
-- **`aria-live`, `aria-busy` e `aria-invalid`** para acessibilidade.
+| Recurso | Onde | Por que usei |
+|---------|------|--------------|
+| Animações CSS (`@keyframes`) com `prefers-reduced-motion` | recado "colado" na geladeira, casinhas do simulador | Dar retorno visual de que a ação funcionou. Quem configura o sistema para menos movimento (por distúrbio vestibular, por exemplo) não vê animação nenhuma. |
+| `clip-path` | casinhas do simulador | Desenhar uma casa só com CSS, sem arquivo de imagem: menos requisições e o desenho muda de cor junto com o tema. |
+| SVG inline | geladeira vazia (Início) | Ilustrar o estado "sem recados" sem depender de imagem externa, e o desenho é escondido do leitor de tela (`aria-hidden`). |
+| SVG como fundo (data-URI) | borda serrilhada do cupom | Imitar um cupom de papel sem imagem à parte. |
+| API de validação do navegador (`validity`) | `ligarValidacao` e `mensagemNativa` | Aproveitar as regras do HTML5 (obrigatório, tamanho, faixa) e mostrar a mensagem na tela em português, em vez do balão do navegador, sem duplicar regras no JavaScript. |
+| `requestAnimationFrame` e `matchMedia` | contagem do simulador | Animar o número de forma suave e desligar a contagem quando a pessoa pede menos movimento. |
+| `aria-live`, `aria-busy`, `aria-invalid` | formulários, cupom e simulador | Leitores de tela avisam erros e resultados sem a pessoa precisar procurar na página. |
+| SRI (`integrity` + `crossorigin`) | Bootstrap nas 3 páginas | Se o arquivo do CDN fosse trocado por um código malicioso, o navegador não o executaria. Mitiga a ameaça de ataque à cadeia de suprimentos. |
 
 ---
 
@@ -68,21 +77,21 @@ Log: `quando`, `acao`, `resultado` (guarda as últimas 30 atividades).
 ```text
 geladeira-cheia/
 │
-├── Inicio/            # Página principal (index.html, style.css, inicio.js)
-├── Simulador/         # Simulador de famílias alimentadas
-├── Sobre/             # Sobre o projeto
+├── index.html         # Entrada: redireciona para inicio/index.html (evita 404 na URL base do GitHub Pages)
+├── inicio/            # Página principal (index.html, style.css, inicio.js)
+├── simulador/         # Simulador de famílias alimentadas (simulador.html, simulador.css, simulador.js)
+├── sobre/             # Sobre o projeto (sobre.html, sobre.css)
 ├── js/
 │   └── geladeira-cheia.js      # Armazenamento, erros, log e validação compartilhados
 ├── prints/            # Prints das telas (celular, tablet e desktop)
 ├── global.css         # Estilos globais compartilhados entre as páginas
+├── .gitignore
 └── README.md
 ```
 
 ---
 
 ## Prints das telas
-
-> Coloque as imagens na pasta `prints/` com estes nomes e elas aparecem aqui. Depois, apague esta observação.
 
 ### Início (a geladeira)
 
@@ -107,9 +116,9 @@ geladeira-cheia/
 ## Como executar o projeto
 
 1. Abra a pasta `geladeira-cheia/` no Visual Studio Code;
-2. Clique com o botão direito em `Inicio/index.html` e escolha **Open with Live Server**.
+2. Clique com o botão direito em `index.html` (na raiz) ou em `inicio/index.html` e escolha **Open with Live Server**.
 
-Também funciona abrindo `Inicio/index.html` direto no navegador.
+Também funciona abrindo `index.html` direto no navegador. O Bootstrap e as fontes vêm da internet (CDN).
 
 
 ---

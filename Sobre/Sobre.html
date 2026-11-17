@@ -11,7 +11,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap">
 
     <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Integridade (SRI): o navegador recusa o arquivo se ele for alterado no CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
 
     <!-- CSS da Geladeira Cheia -->
     <link rel="stylesheet" href="../global.css">
@@ -22,16 +24,16 @@
     <header class="topo">
         <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Principal">
             <div class="container-fluid">
-                <a class="navbar-brand" href="../Inicio/index.html">Geladeira Cheia</a>
+                <a class="navbar-brand" href="../inicio/index.html">Geladeira Cheia</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuGeladeira"
                     aria-controls="menuGeladeira" aria-expanded="false" aria-label="Abrir menu de navegação">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="menuGeladeira">
                     <div class="navbar-nav">
-                        <a class="nav-link" href="../Inicio/index.html">Início</a>
-                        <a class="nav-link" href="../Simulador/Simulador.html">Simulador</a>
-                        <a class="nav-link" href="../Sobre/Sobre.html" aria-current="page">Sobre</a>
+                        <a class="nav-link" href="../inicio/index.html">Início</a>
+                        <a class="nav-link" href="../simulador/simulador.html">Simulador</a>
+                        <a class="nav-link" href="../sobre/sobre.html" aria-current="page">Sobre</a>
                     </div>
                 </div>
             </div>
@@ -73,15 +75,16 @@
 
     <footer class="rodape">
         <div class="rodape-conteudo">
-            <a class="rodape-marca" href="../Inicio/index.html">Geladeira Cheia</a>
+            <a class="rodape-marca" href="../inicio/index.html">Geladeira Cheia</a>
             <p>A Geladeira Cheia é um protótipo acadêmico (P2 de Desenvolvimento Web I) sobre uso consciente de recursos: avisar o bairro das sobras de comida antes que vençam.</p>
             <nav class="rodape-nav" aria-label="Rodapé">
-                <a href="../Inicio/index.html">Início</a> <a href="../Simulador/Simulador.html">Simulador</a> <a href="../Sobre/Sobre.html">Sobre</a>
+                <a href="../inicio/index.html">Início</a> <a href="../simulador/simulador.html">Simulador</a> <a href="../sobre/sobre.html">Sobre</a>
             </nav>
             <p class="rodape-copy">&copy; 2026 Geladeira Cheia. Dados fictícios, guardados só neste navegador.</p>
         </div>
     </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-WyOxWvTyr1QaMPfiPJSv76iReVthorl5uWlFtZPyK0IEB0hGzo9y5Bp9mYanr8Bu" crossorigin="anonymous"></script>
     <script src="../js/geladeira-cheia.js"></script>
 </body>
 
