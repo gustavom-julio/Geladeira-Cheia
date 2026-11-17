@@ -10,3 +10,9 @@
   font-size: 1.15rem;
 }
 .sobre .rotulo dd { max-width: 70ch; margin: 0; }
+
+/* ---- Lista de ODS e fontes ---- */
+.sobre .rotulo ul { margin: 0; padding-left: var(--e5); }
+.sobre .rotulo li { margin-bottom: var(--e1); }
+.sobre .rotulo a { color: var(--tinta); font-weight: 700; }
+.sobre .fonte { display: block; margin-top: var(--e2); font-size: .9rem; }
