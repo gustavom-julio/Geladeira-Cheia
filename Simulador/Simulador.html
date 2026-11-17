@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador | Geladeira Cheia</title>
+
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- CSS da Geladeira Cheia -->
+    <link rel="stylesheet" href="../global.css">
+    <link rel="stylesheet" href="simulador.css">
+</head>
+
+<body class="simulador" id="topo">
+    <header class="topo">
+        <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Principal">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="../Inicio/index.html">Geladeira Cheia</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuGeladeira"
+                    aria-controls="menuGeladeira" aria-expanded="false" aria-label="Abrir menu de navegação">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="menuGeladeira">
+                    <div class="navbar-nav">
+                        <a class="nav-link" href="../Inicio/index.html">Início</a>
+                        <a class="nav-link" href="../Simulador/Simulador.html" aria-current="page">Simulador</a>
+                        <a class="nav-link" href="../Sobre/Sobre.html">Sobre</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="conteudo">
+            <div id="aviso" class="alert alert-danger" role="alert" hidden></div>
+
+            <section class="folha" aria-labelledby="t-sim">
+                <h1 id="t-sim">Quantas famílias cabem no seu lixo?</h1>
+                <p>Descubra quantas famílias a comida que sua casa joga fora poderia alimentar. Valores fictícios, nada é enviado.</p>
+                <div class="row g-4">
+                    <form id="form-sim" class="col-md-5">
+                        <div class="mb-3"><label class="form-label" for="kg">Comida jogada por semana (kg)</label>
+                            <input class="form-control" id="kg" type="number" required min="0.1" max="50" step="0.1" inputmode="decimal">
+                            <div class="erro" id="erro-kg" aria-live="polite"></div></div>
+                        <div class="mb-3"><label class="form-label" for="pessoas">Pessoas em uma família</label>
+                            <input class="form-control" id="pessoas" type="number" required min="1" max="10" step="1" value="4" inputmode="numeric">
+                            <div class="erro" id="erro-pessoas" aria-live="polite"></div></div>
+                        <div class="mb-3"><label class="form-label" for="meta">Quanto você quer reduzir: <output id="meta-valor" for="meta">50%</output></label>
+                            <input class="form-range" id="meta" type="range" min="10" max="90" step="10" value="50">
+                            <div class="erro" id="erro-meta" aria-live="polite"></div></div>
+                        <button class="botao" type="submit">Calcular</button>
+                    </form>
+                    <div class="col-md-7" aria-live="polite"><div id="resultado" class="resultado" hidden></div></div>
+                </div>
+                <p class="privacidade mt-3">Suposições: uma refeição pesa cerca de 0,5 kg e cada pessoa faz 3 refeições por dia. São estimativas, não dados oficiais.</p>
+            </section>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="rodape-conteudo">
+            <a class="rodape-marca" href="../Inicio/index.html">Geladeira Cheia</a>
+            <p>A Geladeira Cheia é um protótipo acadêmico (P2 de Desenvolvimento Web I) sobre uso consciente de recursos: avisar o bairro das sobras de comida antes que vençam.</p>
+            <nav class="rodape-nav" aria-label="Rodapé">
+                <a href="../Inicio/index.html">Início</a> <a href="../Simulador/Simulador.html">Simulador</a> <a href="../Sobre/Sobre.html">Sobre</a>
+            </nav>
+            <p class="rodape-copy">&copy; 2026 Geladeira Cheia. Dados fictícios, guardados só neste navegador.</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/geladeira-cheia.js"></script>
+    <script src="simulador.js"></script>
+</body>
+
+</html>
