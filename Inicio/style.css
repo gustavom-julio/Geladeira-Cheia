@@ -1,0 +1,129 @@
+/* Página Início (a geladeira) - só o que é exclusivo dela.
+   Cores, cabeçalho, botões, formulários e rodapé vêm do global.css */
+
+/* ---- A geladeira: porta de esmalte com dois compartimentos ---- */
+.geladeira {
+  padding: var(--e4);
+  background: var(--esmalte);
+  border-radius: 36px 36px 18px 18px;
+  box-shadow: 0 14px 0 #0b1530;
+}
+
+.freezer,
+.corpo {
+  position: relative;
+  padding: var(--e4) 0 var(--e4) var(--e6);
+}
+
+.freezer {
+  margin-bottom: var(--e4);
+  border-bottom: 8px solid var(--tinta);
+}
+
+/* Puxador de cada porta */
+.freezer::before,
+.corpo::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.2rem;
+  width: 12px;
+  height: 5rem;
+  border-radius: 12px;
+  background: var(--tinta);
+}
+
+.freezer h1 {
+  margin: 0 0 var(--e2);
+  font-size: clamp(2.6rem, 13vw, 7rem);
+  line-height: .9;
+}
+
+.freezer .lead { max-width: 34ch; font-size: 1.25rem; }
+
+/* ---- Bloco de recados (formulário) ---- */
+.recado {
+  padding: var(--e5);
+  background: var(--limao);
+  border-radius: 4px;
+  box-shadow: 0 6px 0 var(--tinta);
+}
+
+.recado h2,
+#t-lista { font-size: 1.6rem; }
+
+/* ---- Etiquetas presas com ímã ---- */
+.etiqueta {
+  position: relative;
+  height: 100%;
+  padding: 1.4rem var(--e4) var(--e4);
+  background: var(--papel);
+  border: 2px solid var(--tinta);
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 var(--tinta);
+}
+
+.etiqueta::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  background: var(--parede);
+  border: 2px solid var(--tinta);
+  border-radius: 50%;
+}
+
+.etiqueta h3 { margin: 0; font-size: 1.3rem; }
+.etiqueta.urgente { background: var(--limao); }
+.etiqueta.vencido {
+  background: repeating-linear-gradient(135deg, #e6e8ef 0 8px, #fff 8px 16px);
+  border-style: dashed;
+}
+
+.col-sm-6:nth-child(3n+1) .etiqueta { transform: rotate(-1.2deg); }
+.col-sm-6:nth-child(3n+2) .etiqueta { transform: rotate(.8deg); }
+
+.prazo { font-weight: 800; }
+
+.acoes { display: flex; flex-wrap: wrap; gap: var(--e2); margin-top: var(--e3); }
+.acoes button {
+  padding: 2px var(--e3);
+  background: transparent;
+  border: 2px solid var(--tinta);
+  border-radius: 999px;
+  font-weight: 700;
+}
+.acoes button:hover { background: var(--tinta); color: #fff; }
+
+/* ---- Cupom de atividades (painel de log) ---- */
+.cupom {
+  max-width: 620px;
+  margin: var(--e7) auto 0;
+  padding: var(--e4) var(--e5);
+  background: var(--papel);
+  border-top: 6px dotted var(--tinta);
+  border-bottom: 6px dotted var(--tinta);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: .9rem;
+}
+.cupom h2 { font-size: 1.3rem; }
+.cupom ol { margin: 0; padding: 0; list-style: none; }
+.cupom li {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 var(--e3);
+  padding: var(--e1) 0;
+  border-bottom: 1px dashed #9aa3b8;
+}
+
+@media (min-width: 576px) {
+  .cupom li { grid-template-columns: 9.5rem 6rem 1fr; }
+}
+
+@media (min-width: 768px) {
+  .geladeira { padding: var(--e5); }
+  .freezer, .corpo { padding-left: var(--e7); }
+}

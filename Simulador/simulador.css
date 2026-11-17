@@ -1,0 +1,20 @@
+/* Página Simulador - só o que é exclusivo dela.
+   Cores, cabeçalho, folha, botões, formulários e rodapé vêm do global.css */
+
+/* ---- Resultado ---- */
+.resultado {
+  padding: var(--e5);
+  background: var(--limao);
+  border: 2px solid var(--tinta);
+  border-radius: 4px;
+}
+.resultado strong { font-family: var(--titulo); font-size: 1.6rem; }
+
+/* ---- Uma casinha por família alimentada ---- */
+.casas { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--e3); }
+.casa {
+  width: 24px;
+  height: 24px;
+  background: var(--tinta);
+  clip-path: polygon(50% 0, 100% 45%, 88% 45%, 88% 100%, 12% 100%, 12% 45%, 0 45%);
+}

@@ -1,0 +1,12 @@
+/* Página Sobre - só o que é exclusivo dela.
+   Cores, cabeçalho, folha e rodapé vêm do global.css */
+
+/* ---- Rótulo do projeto (lista de definições) ---- */
+.sobre .rotulo dt {
+  margin-top: var(--e4);
+  padding-top: var(--e2);
+  border-top: 3px solid var(--tinta);
+  font-family: var(--titulo);
+  font-size: 1.15rem;
+}
+.sobre .rotulo dd { max-width: 70ch; margin: 0; }
