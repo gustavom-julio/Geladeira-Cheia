@@ -1,5 +1,6 @@
 /*
  * Geladeira Cheia | Início (a geladeira): adicionar, listar, editar e remover recados.
+ * Usa as funções compartilhadas de ../js/geladeira-cheia.js (window.GeladeiraCheia).
  */
 (function () {
     "use strict";
@@ -8,7 +9,11 @@
     var form = document.getElementById("form");
     var lista = document.getElementById("lista");
     var CAMPOS = ["nome", "quantidade", "unidade", "validade", "ponto"];
+    var CAPACIDADE = 12;                                  // recados que "enchem" a geladeira
+    var ICONES = { un: "🧺", kg: "⚖️", L: "🥛" };         // um ícone por unidade
     var itens = [];
+    var filtro = "todos";                                 // todos | logo | vencidos
+    var idNovo = "";                                      // recado recém-colado (ganha animação)
 
     // ----- Datas -----
     function hojeISO() {
@@ -74,10 +79,12 @@
     function persistir() { return S.salvarLista(S.K_ITENS, itens); }
 
     function adicionar(d) {
-        itens.push({
+        var item = {
             id: gerarId(), nome: d.nome.trim(), quantidade: Number(d.quantidade), unidade: d.unidade,
             validade: d.validade, ponto: d.ponto.trim(), criadoEm: new Date().toISOString()
-        });
+        };
+        itens.push(item);
+        idNovo = item.id;
         S.registrarLog("adicionar", "item adicionado com sucesso");
     }
 
@@ -125,12 +132,33 @@
         return el;
     }
 
+    // Selo redondo de prazo (enfeite: o prazo também está escrito no texto do recado)
+    function criarSelo(dias) {
+        var selo = document.createElement("span");
+        selo.className = "selo";
+        selo.setAttribute("aria-hidden", "true");
+        if (dias < 0) {
+            selo.append(criarTexto("b", "", "!"), criarTexto("small", "", "venceu"));
+        } else if (dias === 0) {
+            selo.className += " palavra";
+            selo.append(criarTexto("b", "", "hoje"));
+        } else {
+            selo.append(criarTexto("b", "", String(dias)), criarTexto("small", "", dias === 1 ? "dia" : "dias"));
+        }
+        return selo;
+    }
+
     function criarCartao(item) {
         var dias = diasAte(item.validade);
         var col = document.createElement("div");
-        col.className = "col-sm-6 col-xl-4";
+        col.className = "col-sm-6 col-xl-4 prateleira" + (item.id === idNovo ? " nova" : "");
         var art = document.createElement("article");
         art.className = "etiqueta" + (dias < 0 ? " vencido" : dias <= 1 ? " urgente" : "");
+        var icone = criarTexto("span", "icone", ICONES[item.unidade] || "");
+        icone.setAttribute("aria-hidden", "true");
+        var qtd = document.createElement("p");
+        qtd.className = "mb-1";
+        qtd.append(icone, " " + item.quantidade + " " + item.unidade);
         var acoes = document.createElement("div");
         acoes.className = "acoes";
         acoes.append(
@@ -138,8 +166,9 @@
             criarBotao("Remover", function () { remover(item.id); })
         );
         art.append(
+            criarSelo(dias),
             criarTexto("h3", "", item.nome),
-            criarTexto("p", "mb-1", item.quantidade + " " + item.unidade),
+            qtd,
             criarTexto("p", "prazo mb-1", descreverPrazo(dias)),
             criarTexto("p", "mb-0", "Retirar: " + item.ponto),
             acoes
@@ -148,12 +177,45 @@
         return col;
     }
 
+    // ----- Filtros: todos, vence logo (até 2 dias) e vencidos -----
+    function passaNoFiltro(item) {
+        var d = diasAte(item.validade);
+        if (filtro === "logo") return d >= 0 && d <= 2;
+        if (filtro === "vencidos") return d < 0;
+        return true;
+    }
+
+    function ligarFiltros() {
+        var botoes = document.querySelectorAll(".filtros button");
+        botoes.forEach(function (b) {
+            b.addEventListener("click", function () {
+                filtro = b.dataset.filtro;
+                botoes.forEach(function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+                desenharLista();
+            });
+        });
+    }
+
+    // ----- Termômetro: quanto mais recados, mais cheia a geladeira -----
+    function atualizarNivel() {
+        var total = itens.length;
+        var pct = Math.min(100, Math.round(total / CAPACIDADE * 100));
+        document.getElementById("nivel-barra").style.height = pct + "%";
+        document.querySelector(".nivel").dataset.cheia = pct >= 100 ? "sim" : "nao";
+        var texto = total === 0 ? "Geladeira vazia" : pct >= 100 ? "Geladeira lotada" : "Geladeira " + pct + "% cheia";
+        document.getElementById("nivel-texto").textContent = texto + " · " + total + (total === 1 ? " recado" : " recados");
+    }
+
     function desenharLista() {
         lista.replaceChildren();
         var ordenados = itens.slice().sort(function (a, b) { return a.validade.localeCompare(b.validade); });
-        ordenados.forEach(function (i) { lista.appendChild(criarCartao(i)); });
-        document.getElementById("vazio").hidden = ordenados.length > 0;
-        document.getElementById("contagem").textContent = "(" + ordenados.length + ")";
+        var visiveis = ordenados.filter(passaNoFiltro);
+        visiveis.forEach(function (i) { lista.appendChild(criarCartao(i)); });
+        document.getElementById("vazio").hidden = itens.length > 0;
+        document.getElementById("vazio-filtro").hidden = !(itens.length > 0 && visiveis.length === 0);
+        document.getElementById("contagem").textContent = "(" + visiveis.length + ")";
+        atualizarNivel();
+        idNovo = "";
     }
 
     // ----- Eventos -----
@@ -197,6 +259,7 @@
         S.ligarValidacao(form, function () { S.registrarLog("validar", "recusado: dados inválidos"); });
         form.addEventListener("submit", aoEnviar);
         document.getElementById("cancelar").addEventListener("click", limparFormulario);
+        ligarFiltros();
         desenharLista();
     }
 

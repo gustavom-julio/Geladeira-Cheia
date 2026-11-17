@@ -8,7 +8,7 @@
 
     <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&family=Caveat:wght@700&display=swap">
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -45,8 +45,20 @@
             <div class="geladeira">
                 <!-- Freezer: título -->
                 <section class="freezer" aria-labelledby="titulo">
-                    <h1 id="titulo">Geladeira Cheia</h1>
-                    <p class="lead">Cole na geladeira do bairro. Quem precisa retira antes de vencer.</p>
+                    <div>
+                        <h1 id="titulo">Geladeira Cheia</h1>
+                        <p class="lead">Cole na geladeira do bairro. Quem precisa retira antes de vencer.</p>
+                    </div>
+
+                    <!-- Painel: plaquinha de metal, mostrador de temperatura (enfeite) e nível da geladeira -->
+                    <div class="painel">
+                        <p class="placa" aria-hidden="true">Geladeira Cheia &middot; Bairro 2026</p>
+                        <div class="painel-corpo">
+                            <p class="lcd" aria-hidden="true">4 &deg;C</p>
+                            <div class="nivel" aria-hidden="true"><div class="nivel-barra" id="nivel-barra"></div></div>
+                        </div>
+                        <p class="nivel-texto" id="nivel-texto" aria-live="polite"></p>
+                    </div>
                 </section>
 
                 <div class="row g-4 corpo">
@@ -95,8 +107,27 @@
                     <!-- Lista de recados -->
                     <section class="col-lg-8" aria-labelledby="t-lista">
                         <h2 id="t-lista">Na geladeira agora <span id="contagem"></span></h2>
+                        <div class="filtros" role="group" aria-label="Filtrar recados">
+                            <button type="button" data-filtro="todos" aria-pressed="true">Todos</button>
+                            <button type="button" data-filtro="logo" aria-pressed="false">Vence logo</button>
+                            <button type="button" data-filtro="vencidos" aria-pressed="false">Vencidos</button>
+                        </div>
                         <div id="lista" class="row g-3"></div>
-                        <p id="vazio" hidden>A geladeira está vazia. Cole o primeiro recado.</p>
+
+                        <!-- Geladeira vazia (desenho em SVG) -->
+                        <div id="vazio" class="vazio" hidden>
+                            <svg viewBox="0 0 140 160" width="140" height="160" aria-hidden="true" focusable="false">
+                                <rect x="30" y="8" width="100" height="144" rx="10" fill="#fdfdfb" stroke="#12213f" stroke-width="4"/>
+                                <path d="M30 8 L6 22 V146 L30 152 Z" fill="#bfe3d6" stroke="#12213f" stroke-width="4" stroke-linejoin="round"/>
+                                <line x1="34" y1="50" x2="126" y2="50" stroke="#12213f" stroke-width="4"/>
+                                <line x1="34" y1="92" x2="126" y2="92" stroke="#12213f" stroke-width="4"/>
+                                <line x1="34" y1="124" x2="126" y2="124" stroke="#12213f" stroke-width="4"/>
+                                <rect x="12" y="62" width="5" height="34" rx="2.5" fill="#12213f"/>
+                                <circle cx="108" cy="26" r="6" fill="#f4dc3b" stroke="#12213f" stroke-width="3"/>
+                            </svg>
+                            <p>A geladeira está vazia. Cole o primeiro recado.</p>
+                        </div>
+                        <p id="vazio-filtro" hidden>Nenhum recado neste filtro.</p>
                     </section>
                 </div>
             </div>
@@ -112,7 +143,7 @@
     <footer class="rodape">
         <div class="rodape-conteudo">
             <a class="rodape-marca" href="../Inicio/index.html">Geladeira Cheia</a>
-            <p>A Geladeira Cheia é um protótipo acadêmico sobre uso consciente de recursos: avisar o bairro das sobras de comida antes que vençam.</p>
+            <p>A Geladeira Cheia é um protótipo acadêmico (P2 de Desenvolvimento Web I) sobre uso consciente de recursos: avisar o bairro das sobras de comida antes que vençam.</p>
             <nav class="rodape-nav" aria-label="Rodapé">
                 <a href="../Inicio/index.html">Início</a> <a href="../Simulador/Simulador.html">Simulador</a> <a href="../Sobre/Sobre.html">Sobre</a>
             </nav>

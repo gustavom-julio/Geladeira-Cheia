@@ -16,6 +16,7 @@
     --erro: #b00020;           /* mensagens de erro (4.7:1 sobre o limão) */
     --titulo: "Bricolage Grotesque", "Arial Black", sans-serif;
     --texto: "Figtree", system-ui, sans-serif;
+    --manuscrita: "Caveat", "Comic Sans MS", cursive;   /* só no nome do alimento */
 
     /* Espaçamentos (escala de 8 px): perto = relacionado, longe = separado */
     --e1: 4px;
@@ -39,12 +40,18 @@ html {
 
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    * { transition: none !important; }
+    * { transition: none !important; animation: none !important; }
 }
 
 body {
     margin: 0;
-    background: var(--parede);
+    /* Parede de azulejo feita só com CSS: rejunte em linhas e um losango no centro de cada peça */
+    background-color: var(--parede);
+    background-image:
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .09) 0 5px, transparent 6px),
+        linear-gradient(rgba(255, 255, 255, .1) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255, 255, 255, .1) 2px, transparent 2px);
+    background-size: 56px 56px;
     color: var(--tinta);
     font-family: var(--texto);
     font-size: 1rem;

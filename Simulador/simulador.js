@@ -1,5 +1,6 @@
 /*
  * Geladeira Cheia | Simulador: quantas famílias a comida desperdiçada poderia alimentar.
+ * Usa as funções compartilhadas de ../js/geladeira-cheia.js (window.GeladeiraCheia).
  */
 (function () {
     "use strict";
@@ -8,6 +9,12 @@
     var REFEICAO_KG = 0.5;          // suposição declarada na página
     var REFEICOES_PESSOA_DIA = 3;   // suposição declarada na página
     var MAX_CASAS = 24;             // limite de ícones desenhados
+    var DURACAO_CONTAGEM = 900;     // milissegundos
+
+    // Quem pede menos movimento no sistema não vê contagem nem animações
+    function reduzirMovimento() {
+        return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    }
 
     // Valida número dentro de um intervalo. Devolve a mensagem ou ""
     function numeroEntre(valor, min, max, inteiro) {
@@ -29,13 +36,34 @@
         return { kgAno: kgAno, kgSalvos: kgSalvos, refeicoes: refeicoes, diasFamilia: diasFamilia, familiasSemana: diasFamilia / 7 };
     }
 
-    // Parágrafo com um trecho em destaque (textContent, sem innerHTML)
+    // Parágrafo com um trecho em destaque (textContent, sem innerHTML). Devolve o destaque.
     function adicionarLinha(caixa, antes, destaque, depois) {
         var p = document.createElement("p");
         var s = document.createElement("strong");
         s.textContent = destaque;
         p.append(antes, s, depois);
         caixa.appendChild(p);
+        return s;
+    }
+
+    // Conta de 0 até o valor final. Enquanto conta, o leitor de tela espera (aria-busy)
+    // e lê só o resultado final.
+    function animarFamilias(el, alvo) {
+        function texto(n) { return formatar(n) + (n === 1 ? " família" : " famílias"); }
+        if (reduzirMovimento() || alvo < 1) { el.textContent = texto(alvo); return; }
+        var regiao = el.closest("[aria-live]");
+        var inicio = null;
+        if (regiao) regiao.setAttribute("aria-busy", "true");
+        el.textContent = texto(0);
+        function passo(agora) {
+            if (!el.isConnected) return;            // o resultado foi refeito: para esta contagem
+            if (inicio === null) inicio = agora;
+            var p = Math.min(1, (agora - inicio) / DURACAO_CONTAGEM);
+            el.textContent = texto(Math.round(alvo * p));
+            if (p < 1) window.requestAnimationFrame(passo);
+            else if (regiao) regiao.setAttribute("aria-busy", "false");
+        }
+        window.requestAnimationFrame(passo);
     }
 
     // Uma casinha por família alimentada (até o limite)
@@ -47,6 +75,7 @@
         for (var i = 0; i < Math.min(quantidade, MAX_CASAS); i++) {
             var c = document.createElement("span");
             c.className = "casa";
+            c.style.setProperty("--i", i);
             linha.appendChild(c);
         }
         caixa.appendChild(linha);
@@ -59,7 +88,9 @@
         adicionarLinha(caixa, "Reduzindo " + meta + "%, sobram ", formatar(r.kgSalvos, 1) + " kg", " que viram " + formatar(Math.round(r.refeicoes)) + " refeições.");
         var familias = Math.floor(r.familiasSemana);
         if (familias >= 1) {
-            adicionarLinha(caixa, "Isso alimenta ", formatar(familias) + (familias === 1 ? " família" : " famílias"), " de " + gente + " por uma semana.");
+            var numero = adicionarLinha(caixa, "Isso alimenta ", "", " de " + gente + " por uma semana.");
+            caixa.hidden = false;
+            animarFamilias(numero, familias);
         } else {
             adicionarLinha(caixa, "Isso dá comida para uma família de " + gente + " por ", formatar(r.diasFamilia, 1) + " dias", ".");
         }
@@ -88,10 +119,17 @@
         }
     }
 
+    // Barra de meta: mostra o valor e pinta o "termômetro" até o ponto escolhido
+    function atualizarMeta(campo) {
+        var pct = (campo.value - campo.min) / (campo.max - campo.min) * 100;
+        campo.style.setProperty("--preenchido", pct + "%");
+        document.getElementById("meta-valor").textContent = campo.value + "%";
+    }
+
     var formSim = document.getElementById("form-sim");
+    var campoMeta = document.getElementById("meta");
     S.ligarValidacao(formSim, function () { S.registrarLog("simular", "recusado: dados inválidos"); });
     formSim.addEventListener("submit", calcular);
-    document.getElementById("meta").addEventListener("input", function (e) {
-        document.getElementById("meta-valor").textContent = e.target.value + "%";
-    });
+    campoMeta.addEventListener("input", function () { atualizarMeta(campoMeta); });
+    atualizarMeta(campoMeta);
 })();
