@@ -1,12 +1,23 @@
-/* Página Início (a geladeira) - só o que é exclusivo dela.
+/* Página Início - só o que é exclusivo dela.
    Cores, cabeçalho, botões, formulários e rodapé vêm do global.css */
 
 /* ---- A geladeira: porta de esmalte com dois compartimentos ---- */
 .geladeira {
+  position: relative;
   padding: var(--e4);
   background: var(--esmalte);
   border-radius: 36px 36px 18px 18px;
   box-shadow: 0 14px 0 #0b1530;
+}
+
+/* Borracha de vedação: aro escuro na borda da porta */
+.geladeira::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 5px solid rgba(18, 33, 63, .14);
+  border-radius: 30px 30px 14px 14px;
+  pointer-events: none;
 }
 
 .freezer,
@@ -16,6 +27,9 @@
 }
 
 .freezer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e5);
   margin-bottom: var(--e4);
   border-bottom: 8px solid var(--tinta);
 }
@@ -41,6 +55,64 @@
 
 .freezer .lead { max-width: 34ch; font-size: 1.25rem; }
 
+/* ---- Painel da porta: plaquinha de metal, mostrador e nível ---- */
+.painel {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: var(--e3) var(--e4);
+  background: linear-gradient(160deg, #f1f4f6, #b8c1c8 55%, #e6ebee);
+  border: 3px solid var(--tinta);
+  border-radius: 12px;
+  box-shadow: 0 4px 0 var(--tinta);
+}
+
+.placa {
+  margin: 0 0 var(--e2);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.painel-corpo { display: flex; align-items: flex-end; gap: var(--e4); }
+
+/* Mostrador de temperatura (enfeite) */
+.lcd {
+  margin: 0;
+  padding: var(--e1) var(--e3);
+  background: #0f2a1e;
+  color: #9dffb0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 1.6rem;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #000;
+}
+
+/* Termômetro: enche conforme a geladeira recebe recados */
+.nivel {
+  position: relative;
+  width: 22px;
+  height: 72px;
+  overflow: hidden;
+  background: var(--papel);
+  border: 3px solid var(--tinta);
+  border-radius: 12px;
+}
+
+.nivel-barra {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 0;
+  background: var(--parede);
+  transition: height .6s ease;
+}
+
+.nivel[data-cheia="sim"] .nivel-barra { background: var(--limao); }
+
+.nivel-texto { margin: var(--e2) 0 0; font-size: .85rem; font-weight: 700; }
+
 /* ---- Bloco de recados (formulário) ---- */
 .recado {
   padding: var(--e5);
@@ -51,6 +123,32 @@
 
 .recado h2,
 #t-lista { font-size: 1.6rem; }
+
+/* ---- Filtros da lista ---- */
+.filtros { display: flex; flex-wrap: wrap; gap: var(--e2); margin-bottom: var(--e5); }
+.filtros button {
+  padding: var(--e1) var(--e4);
+  background: var(--papel);
+  border: 2px solid var(--tinta);
+  border-radius: 999px;
+  font-weight: 700;
+}
+.filtros button[aria-pressed="true"] { background: var(--tinta); color: #fff; }
+
+/* ---- Prateleira sob cada fileira de etiquetas ---- */
+.prateleira { position: relative; padding-bottom: 12px; }
+.prateleira::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 12px;
+  background: linear-gradient(#f4f7f8, #aab4bb);
+  border: 2px solid var(--tinta);
+  border-radius: 3px;
+  box-shadow: 0 6px 0 rgba(18, 33, 63, .18);
+}
 
 /* ---- Etiquetas presas com ímã ---- */
 .etiqueta {
@@ -76,7 +174,16 @@
   border-radius: 50%;
 }
 
-.etiqueta h3 { margin: 0; font-size: 1.3rem; }
+/* Nome do alimento em letra de mão */
+.etiqueta h3 {
+  margin: 0;
+  padding-right: 56px;
+  font-family: var(--manuscrita);
+  font-size: 1.8rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
 .etiqueta.urgente { background: var(--limao); }
 .etiqueta.vencido {
   background: repeating-linear-gradient(135deg, #e6e8ef 0 8px, #fff 8px 16px);
@@ -88,6 +195,31 @@
 
 .prazo { font-weight: 800; }
 
+/* Selo redondo de prazo, como um carimbo no canto */
+.selo {
+  position: absolute;
+  top: -14px;
+  right: -10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: var(--esmalte);
+  border: 2px solid var(--tinta);
+  border-radius: 50%;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  transform: rotate(10deg);
+}
+.selo b { font-family: var(--titulo); font-size: 1.3rem; }
+.selo.palavra b { font-size: 1.05rem; }
+.selo small { font-size: .65rem; text-transform: uppercase; }
+.urgente .selo { background: var(--tinta); color: #fff; }
+.vencido .selo { background: #e6e8ef; }
+
 .acoes { display: flex; flex-wrap: wrap; gap: var(--e2); margin-top: var(--e3); }
 .acoes button {
   padding: 2px var(--e3);
@@ -98,16 +230,57 @@
 }
 .acoes button:hover { background: var(--tinta); color: #fff; }
 
-/* ---- Cupom de atividades (painel de log) ---- */
+/* ---- Geladeira vazia ---- */
+.vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e3);
+  padding: var(--e5) 0;
+  text-align: center;
+}
+.vazio p { margin: 0; font-family: var(--manuscrita); font-size: 1.8rem; line-height: 1.1; }
+
+/* ---- Movimento leve (desligado para quem pede menos movimento) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .nova { animation: colar .55s cubic-bezier(.2, .9, .3, 1.3); }
+  .etiqueta::before { transition: transform .2s ease; }
+  .etiqueta:hover::before { transform: translateY(-2px) rotate(25deg) scale(1.15); }
+
+  @keyframes colar {
+    from { opacity: 0; transform: translateY(-18px) scale(1.08) rotate(-5deg); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+/* ---- Cupom de atividades (painel de log) com borda serrilhada ---- */
 .cupom {
+  position: relative;
   max-width: 620px;
-  margin: var(--e7) auto 0;
+  margin: var(--e8) auto var(--e5);
   padding: var(--e4) var(--e5);
   background: var(--papel);
-  border-top: 6px dotted var(--tinta);
-  border-bottom: 6px dotted var(--tinta);
   font-family: ui-monospace, Consolas, monospace;
   font-size: .9rem;
+  filter: drop-shadow(0 4px 0 rgba(18, 33, 63, .35));
+}
+.cupom::before,
+.cupom::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 8px;
+  background-repeat: repeat-x;
+  background-size: 16px 8px;
+}
+.cupom::before {
+  top: -8px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8' viewBox='0 0 16 8'%3E%3Cpath d='M0 8 L8 0 L16 8 Z' fill='%23fdfdfb'/%3E%3C/svg%3E");
+}
+.cupom::after {
+  bottom: -8px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8' viewBox='0 0 16 8'%3E%3Cpath d='M0 0 L8 8 L16 0 Z' fill='%23fdfdfb'/%3E%3C/svg%3E");
 }
 .cupom h2 { font-size: 1.3rem; }
 .cupom ol { margin: 0; padding: 0; list-style: none; }
@@ -126,4 +299,6 @@
 @media (min-width: 768px) {
   .geladeira { padding: var(--e5); }
   .freezer, .corpo { padding-left: var(--e7); }
+  .freezer { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+  .painel { align-self: flex-end; margin-bottom: var(--e2); }
 }

@@ -53,6 +53,14 @@ Log: `quando`, `acao`, `resultado` (guarda as últimas 30 atividades).
 - **JavaScript** puro: DOM, eventos, `localStorage`;
 - **Bootstrap 5.3.8**: navbar, grid e formulários.
 
+### Recursos além da aula (bônus)
+
+- **Animações CSS** (`@keyframes`) respeitando `prefers-reduced-motion`;
+- **`clip-path` e SVG** para as casinhas do simulador, a geladeira vazia e a borda serrilhada do cupom;
+- **API de validação do navegador** (`validity`) para mostrar as mensagens na tela;
+- **`requestAnimationFrame` e `matchMedia`** para a contagem do simulador;
+- **`aria-live`, `aria-busy` e `aria-invalid`** para acessibilidade.
+
 ---
 
 ## Estrutura do projeto
@@ -74,7 +82,7 @@ geladeira-cheia/
 
 ## Prints das telas
 
-> Coloque as imagens na pasta `prints/` com esse nomes e elas aparecem aqui. Depois apagar esta observação.
+> Coloque as imagens na pasta `prints/` com estes nomes e elas aparecem aqui. Depois, apague esta observação.
 
 ### Início (a geladeira)
 
@@ -102,6 +110,7 @@ geladeira-cheia/
 2. Clique com o botão direito em `Inicio/index.html` e escolha **Open with Live Server**.
 
 Também funciona abrindo `Inicio/index.html` direto no navegador.
+
 
 ---
 

@@ -18,3 +18,46 @@
   background: var(--tinta);
   clip-path: polygon(50% 0, 100% 45%, 88% 45%, 88% 100%, 12% 100%, 12% 45%, 0 45%);
 }
+
+/* As casinhas entram uma por vez (--i é o número da casinha) */
+@media (prefers-reduced-motion: no-preference) {
+  .casa { animation: entrar .35s ease-out both; animation-delay: calc(var(--i) * 70ms); }
+
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(10px) scale(.6); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+/* ---- Barra de meta em forma de termômetro ---- */
+.form-range { --preenchido: 50%; }
+
+.form-range::-webkit-slider-runnable-track {
+  height: 16px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--parede) var(--preenchido), var(--papel) var(--preenchido));
+  box-shadow: inset 0 0 0 2px var(--tinta);
+}
+.form-range::-moz-range-track {
+  height: 16px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--parede) var(--preenchido), var(--papel) var(--preenchido));
+  box-shadow: inset 0 0 0 2px var(--tinta);
+}
+.form-range::-webkit-slider-thumb {
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin-top: -6px;
+  background: var(--limao);
+  border: 3px solid var(--tinta);
+  border-radius: 50%;
+}
+.form-range::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  background: var(--limao);
+  border: 3px solid var(--tinta);
+  border-radius: 50%;
+}
