@@ -8,6 +8,7 @@
  *   geladeira_cheia_log     últimas 30 atividades: quando, acao, resultado
  *
  * Nenhum dado pessoal é pedido ou guardado (coleta mínima, LGPD).
+ * Tudo que é lido do localStorage é validado de novo (itemValido) antes de aparecer na tela.
  */
 (function () {
     "use strict";
@@ -46,7 +47,7 @@
     }
 
     function registrarLog(acao, resultado) {
-        var log = lerLista(K_LOG);
+        var log = lerLista(K_LOG).filter(registroValido);
         log.unshift({ quando: new Date().toISOString(), acao: acao, resultado: resultado });
         salvarLista(K_LOG, log.slice(0, 30));
         desenharLog();
@@ -57,7 +58,7 @@
         var ol = document.getElementById("log");
         if (!ol) return;
         ol.replaceChildren();
-        var log = lerLista(K_LOG);
+        var log = lerLista(K_LOG).filter(registroValido);
         if (!log.length) {
             var vazio = document.createElement("li");
             vazio.textContent = "Nenhuma atividade ainda.";
@@ -86,6 +87,53 @@
         if (v.length < min || v.length > max) return "Use de " + min + " a " + max + " caracteres.";
         if (/[<>]/.test(v)) return "Não use os símbolos < e >.";
         return "";
+    }
+
+    // ----- Validação do que vem do localStorage -----
+    // O localStorage pode ser editado por qualquer pessoa no DevTools (ou ficar corrompido).
+    // Por isso nada que é lido de lá é confiado: cada item é conferido de novo antes de ir para a tela.
+
+    // true se for uma data real no formato AAAA-MM-DD (rejeita 2026-02-31, por exemplo)
+    function ehDataReal(v) {
+        if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+        var d = new Date(v + "T00:00:00");
+        if (isNaN(d.getTime())) return false;
+        var ano = d.getFullYear();
+        return ano >= 2000 && ano <= 2100 &&
+            ano === Number(v.slice(0, 4)) && d.getMonth() + 1 === Number(v.slice(5, 7)) && d.getDate() === Number(v.slice(8, 10));
+    }
+
+    // true se o recado tem todos os campos do modelo de dados, com tipo e tamanho corretos.
+    // Não confere se a validade já passou: recados vencidos continuam válidos (aparecem como "vencidos").
+    function itemValido(item) {
+        if (!item || typeof item !== "object") return false;
+        if (typeof item.id !== "string" || !/^[a-z0-9]{1,40}$/.test(item.id)) return false;
+        if (typeof item.nome !== "string" || validarTexto(item.nome, 3, 40)) return false;
+        if (typeof item.ponto !== "string" || validarTexto(item.ponto, 3, 60)) return false;
+        if (!Number.isInteger(item.quantidade) || item.quantidade < 1 || item.quantidade > 999) return false;
+        if (["un", "kg", "L"].indexOf(item.unidade) === -1) return false;
+        if (!ehDataReal(item.validade)) return false;
+        if (typeof item.criadoEm !== "string" || isNaN(new Date(item.criadoEm).getTime())) return false;
+        return true;
+    }
+
+    // Separa os recados válidos dos inválidos ou repetidos. Devolve { validos, descartados }
+    function filtrarItensValidos(lista) {
+        var vistos = Object.create(null);      // sem protótipo: um id como "constructor" não atrapalha
+        var validos = [];
+        lista.forEach(function (item) {
+            if (itemValido(item) && !vistos[item.id]) {
+                vistos[item.id] = true;
+                validos.push(item);
+            }
+        });
+        return { validos: validos, descartados: lista.length - validos.length };
+    }
+
+    // true se a linha do log tem quando (data válida), acao e resultado em texto
+    function registroValido(r) {
+        return !!r && typeof r.quando === "string" && !isNaN(new Date(r.quando).getTime()) &&
+            typeof r.acao === "string" && typeof r.resultado === "string";
     }
 
     // Mostra ou limpa o erro de um campo (id do campo, sem o prefixo "erro-")
@@ -143,7 +191,8 @@
         K_ITENS: K_ITENS, K_LOG: K_LOG, MSG_ERRO: MSG_ERRO,
         mostrarErro: mostrarErro, lerLista: lerLista, salvarLista: salvarLista,
         formatarDataHora: formatarDataHora, registrarLog: registrarLog, desenharLog: desenharLog,
-        validarTexto: validarTexto, mostrarErroCampo: mostrarErroCampo,
+        validarTexto: validarTexto, itemValido: itemValido, filtrarItensValidos: filtrarItensValidos,
+        mostrarErroCampo: mostrarErroCampo,
         mensagemNativa: mensagemNativa, ligarValidacao: ligarValidacao
     };
 })();

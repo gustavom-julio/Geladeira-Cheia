@@ -51,7 +51,9 @@
         return dados;
     }
 
-    // Valida todos os campos e devolve { campo: mensagem }
+    // Valida todos os campos e devolve { campo: mensagem }.
+    // Ao editar um recado que já venceu, manter a data original é permitido (só a data nova segue a regra
+    // "de hoje até 1 ano"). Assim dá para corrigir nome, quantidade ou ponto de um recado vencido.
     function validarDados(d) {
         var erros = {};
         var eNome = S.validarTexto(d.nome, 3, 40); if (eNome) erros.nome = eNome;
@@ -60,15 +62,18 @@
         if (d.quantidade === "") erros.quantidade = "Preencha este campo.";
         else if (!Number.isInteger(q) || q < 1 || q > 999) erros.quantidade = "Informe um número inteiro de 1 a 999.";
         if (["un", "kg", "L"].indexOf(d.unidade) === -1) erros.unidade = "Escolha uma unidade da lista.";
+        var original = d.id ? buscarItem(d.id) : null;
+        var mantemData = !!original && original.validade === d.validade;
         if (!/^\d{4}-\d{2}-\d{2}$/.test(d.validade)) erros.validade = "Informe a data de validade.";
-        else if (diasAte(d.validade) < 0) erros.validade = "A validade não pode estar no passado.";
-        else if (diasAte(d.validade) > 365) erros.validade = "Use uma validade de até 1 ano.";
+        else if (!mantemData && diasAte(d.validade) < 0) erros.validade = "A validade não pode estar no passado.";
+        else if (!mantemData && diasAte(d.validade) > 365) erros.validade = "Use uma validade de até 1 ano.";
         return erros;
     }
 
     function limparFormulario() {
         form.reset();
         document.getElementById("id").value = "";
+        document.getElementById("validade").min = hojeISO();      // volta ao limite normal (fim da edição)
         document.getElementById("salvar").textContent = "Colar na geladeira";
         document.getElementById("cancelar").hidden = true;
         document.getElementById("t-form").textContent = "Novo recado";
@@ -76,39 +81,43 @@
     }
 
     // ----- Operações sobre os dados -----
-    function persistir() { return S.salvarLista(S.K_ITENS, itens); }
-
-    function adicionar(d) {
-        var item = {
-            id: gerarId(), nome: d.nome.trim(), quantidade: Number(d.quantidade), unidade: d.unidade,
-            validade: d.validade, ponto: d.ponto.trim(), criadoEm: new Date().toISOString()
-        };
-        itens.push(item);
-        idNovo = item.id;
-        S.registrarLog("adicionar", "item adicionado com sucesso");
+    // Regra: primeiro grava a lista NOVA no localStorage; só se der certo ela vira a lista da tela
+    // e o resultado "com sucesso" vai para o painel. Se a gravação falhar, o painel diz que falhou.
+    function buscarItem(id) {
+        return itens.filter(function (i) { return i.id === id; })[0] || null;
     }
 
-    function atualizar(d) {
-        var item = itens.filter(function (i) { return i.id === d.id; })[0];
-        if (!item) { S.registrarLog("editar", "item não encontrado"); return; }
-        item.nome = d.nome.trim();
-        item.quantidade = Number(d.quantidade);
-        item.unidade = d.unidade;
-        item.validade = d.validade;
-        item.ponto = d.ponto.trim();
-        S.registrarLog("editar", "item editado com sucesso");
+    // Grava a lista no localStorage. Devolve true se gravou (o erro na tela é mostrado por salvarLista)
+    function persistir(novaLista) { return S.salvarLista(S.K_ITENS, novaLista); }
+
+    // Monta o recado a partir do formulário. Em edição, mantém o id e o criadoEm originais (base)
+    function montarItem(d, base) {
+        return {
+            id: base ? base.id : gerarId(),
+            nome: d.nome.trim(),
+            quantidade: Number(d.quantidade),
+            unidade: d.unidade,
+            validade: d.validade,
+            ponto: d.ponto.trim(),
+            criadoEm: base ? base.criadoEm : new Date().toISOString()
+        };
     }
 
     function remover(id) {
         if (!window.confirm("Remover este recado da geladeira?")) return;
-        itens = itens.filter(function (i) { return i.id !== id; });
-        persistir();
+        var restantes = itens.filter(function (i) { return i.id !== id; });
+        if (!persistir(restantes)) { S.registrarLog("remover", "falha ao salvar os dados"); return; }
+        itens = restantes;
+        if (document.getElementById("id").value === id) limparFormulario();   // não deixa editar um recado que não existe mais
         S.registrarLog("remover", "item removido com sucesso");
         desenharLista();
     }
 
     function iniciarEdicao(item) {
         CAMPOS.forEach(function (c) { document.getElementById(c).value = item[c]; });
+        // Se o recado já venceu, o limite mínimo do campo passa a ser a data dele, para o navegador aceitá-la
+        var campoData = document.getElementById("validade");
+        campoData.min = item.validade < hojeISO() ? item.validade : hojeISO();
         document.getElementById("id").value = item.id;
         document.getElementById("salvar").textContent = "Salvar alterações";
         document.getElementById("cancelar").hidden = false;
@@ -225,13 +234,28 @@
         var erros = validarDados(dados);
         CAMPOS.forEach(function (c) { S.mostrarErroCampo(c, erros[c]); });
         if (Object.keys(erros).length) { S.registrarLog("validar", "recusado: dados inválidos"); return; }
+
+        var editando = Boolean(dados.id);
+        var acao = editando ? "editar" : "adicionar";
         try {
-            if (dados.id) atualizar(dados); else adicionar(dados);
-            if (!persistir()) return;
+            var proposta;
+            var novo = null;
+            if (editando) {
+                var atual = buscarItem(dados.id);
+                if (!atual) { S.registrarLog("editar", "item não encontrado"); limparFormulario(); return; }
+                proposta = itens.map(function (i) { return i.id === dados.id ? montarItem(dados, atual) : i; });
+            } else {
+                novo = montarItem(dados);
+                proposta = itens.concat([novo]);
+            }
+            if (!persistir(proposta)) { S.registrarLog(acao, "falha ao salvar os dados"); return; }
+            itens = proposta;
+            if (novo) idNovo = novo.id;                       // o recado novo ganha a animação
+            S.registrarLog(acao, editando ? "item editado com sucesso" : "item adicionado com sucesso");
             desenharLista();
             limparFormulario();
         } catch (erro) {
-            S.mostrarErro(S.MSG_ERRO);
+            S.mostrarErro(S.MSG_ERRO);                        // o erro técnico não aparece para a pessoa
         }
     }
 
@@ -247,20 +271,35 @@
         });
     }
 
+    // Lê os recados do localStorage e descarta os que estão corrompidos ou foram alterados à mão
+    function carregarItens() {
+        var resultado = S.filtrarItensValidos(S.lerLista(S.K_ITENS));
+        if (resultado.descartados > 0) {
+            S.salvarLista(S.K_ITENS, resultado.validos);
+            S.registrarLog("carregar", resultado.descartados + (resultado.descartados === 1 ? " item inválido descartado" : " itens inválidos descartados"));
+        }
+        return resultado.validos;
+    }
+
     function iniciar() {
         var campoData = document.getElementById("validade");
         campoData.min = hojeISO();
         campoData.max = dataEm(365);
-        var primeiraVez = false;
-        try { primeiraVez = localStorage.getItem(S.K_ITENS) === null; } catch (erro) { S.mostrarErro(S.MSG_ERRO); }
-        itens = primeiraVez ? criarExemplos() : S.lerLista(S.K_ITENS);
-        if (primeiraVez) persistir();
         // O navegador valida primeiro (HTML5); o JS mostra as mensagens e confere as regras extras
         S.ligarValidacao(form, function () { S.registrarLog("validar", "recusado: dados inválidos"); });
         form.addEventListener("submit", aoEnviar);
         document.getElementById("cancelar").addEventListener("click", limparFormulario);
         ligarFiltros();
-        desenharLista();
+        // Carregar e desenhar são os pontos que podem falhar: se der erro, a pessoa vê só a mensagem genérica
+        try {
+            var primeiraVez = localStorage.getItem(S.K_ITENS) === null;
+            itens = primeiraVez ? criarExemplos() : carregarItens();
+            if (primeiraVez) persistir(itens);
+            desenharLista();
+        } catch (erro) {
+            itens = [];
+            S.mostrarErro(S.MSG_ERRO);
+        }
     }
 
     iniciar();
