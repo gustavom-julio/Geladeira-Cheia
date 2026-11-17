@@ -88,19 +88,19 @@ geladeira-cheia/
 
 | Celular | Tablet | Desktop |
 |---------|--------|---------|
-| ![Início no celular](prints/inicio-celular.png) | ![Início no tablet](prints/inicio-tablet.png) | ![Início no desktop](prints/inicio-desktop.png) |
+| ![Início no celular](prints/index%20celular.png) | ![Início no tablet](prints/index%20tablet.png) | ![Início no desktop](prints/index%20desktop.png) |
 
 ### Simulador
 
 | Celular | Tablet | Desktop |
 |---------|--------|---------|
-| ![Simulador no celular](prints/simulador-celular.png) | ![Simulador no tablet](prints/simulador-tablet.png) | ![Simulador no desktop](prints/simulador-desktop.png) |
+| ![Simulador no celular](prints/simulador%20celular.png) | ![Simulador no tablet](prints/simulador%20tablet.png) | ![Simulador no desktop](prints/simulador%20desktop.png) |
 
 ### Sobre
 
 | Celular | Tablet | Desktop |
 |---------|--------|---------|
-| ![Sobre no celular](prints/sobre-celular.png) | ![Sobre no tablet](prints/sobre-tablet.png) | ![Sobre no desktop](prints/sobre-desktop.png) |
+| ![Sobre no celular](prints/sobre%20celular.png) | ![Sobre no tablet](prints/sobre%20tablet.png) | ![Sobre no desktop](prints/sobre%20desktop.png) |
 
 ---
 
